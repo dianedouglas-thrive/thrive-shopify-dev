@@ -1,2 +1,13 @@
 console.log('yo');
-debugger;
+jQuery.getJSON('/cart.js', function(cart) {
+ 
+    let items = cart.items;
+    let cart = cart;
+
+	console.log('There are ' + items.length + ' items in the cart.'); 
+	for(var i=0; i < items.length; i++){
+		console.log(items[i].title);
+	}
+	console.log(cart);
+
+});
