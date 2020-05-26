@@ -2,7 +2,6 @@ console.log('yo');
 jQuery.getJSON('/cart.js', function(cart) {
  
     let items = cart.items;
-    let cart = cart;
 
 	console.log('There are ' + items.length + ' items in the cart.'); 
 	for(var i=0; i < items.length; i++){
