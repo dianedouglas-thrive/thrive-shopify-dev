@@ -11,7 +11,7 @@ ShopifyApp.configure do |config|
   config.shop_session_repository = 'Shop'
   config.scripttags = [
     {event:'onload', src: 'https://thrive-shopify-dev.herokuapp.com/script/test.js'},
-    {event:'onload', src: '//integrate.thrive.today'}
+    {event:'onload', src: 'https://integrate.thrive.today'}
   ]
 end
 
