@@ -10,7 +10,8 @@ ShopifyApp.configure do |config|
   config.api_version = "2020-04"
   config.shop_session_repository = 'Shop'
   config.scripttags = [
-    {event:'onload', src: 'https://thrive-shopify-dev.herokuapp.com/script/test.js'}
+    {event:'onload', src: 'https://thrive-shopify-dev.herokuapp.com/script/test.js'},
+    {event:'onload', src: '//integrate.thrive.today'}
   ]
 end
 
