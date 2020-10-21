@@ -25,9 +25,11 @@ class SmartpagesController < ApplicationController
   # POST /smartpages.json
   def create
     @smartpage = Smartpage.new(smartpage_params)
+    @shop = Shop.where(id: session['shop_id']).first
+    @smartpage.shop_id = @shop.id if @shop
 
     respond_to do |format|
-      if @smartpage.save
+      if @shop && @smartpage.save
         format.html { redirect_to @smartpage, notice: 'Smartpage was successfully created.' }
         format.json { render :show, status: :created, location: @smartpage }
       else
@@ -69,6 +71,6 @@ class SmartpagesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def smartpage_params
-      params.require(:smartpage).permit(:shop_id, :path)
+      params.require(:smartpage).permit(:path)
     end
 end
