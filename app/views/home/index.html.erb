@@ -20,8 +20,4 @@
   <p>This app has not created any webhooks for this Shop. Add webhooks to your ShopifyApp initializer if you need webhooks</p>
 <% end %>
 
-<%= form_tag('smartpages', :method => "post") do %>
-  <%= label_tag(:handle, "Add Smartpage:") %>
-  <%= text_field_tag(:handle) %>
-  <%= submit_tag("Submit") %>
-<% end %>
+<%= link_to 'New Smartpage', new_smartpage_path %>

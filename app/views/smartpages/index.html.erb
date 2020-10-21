@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Smartpages</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Shop</th>
+      <th>Path</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @smartpages.each do |smartpage| %>
+      <tr>
+        <td><%= smartpage.shop_id %></td>
+        <td><%= smartpage.path %></td>
+        <td><%= link_to 'Show', smartpage %></td>
+        <td><%= link_to 'Edit', edit_smartpage_path(smartpage) %></td>
+        <td><%= link_to 'Destroy', smartpage, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Smartpage', new_smartpage_path %>
