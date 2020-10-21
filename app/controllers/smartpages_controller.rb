@@ -55,10 +55,11 @@ class SmartpagesController < AuthenticatedController
   # PATCH/PUT /smartpages/1.json
   def update
     respond_to do |format|
+      old_handle = @smartpage.path
       if @smartpage.update(smartpage_params)
         # if we are updating our smartpage db record for this shop, 
         # we find the page, delete it if it exists and then recreate. 
-        page = shopify_find_smartpage(@smartpage.path)
+        page = shopify_find_smartpage(old_handle)
         delete_response = shopify_delete_smartpage(page) if page
         new_shopify_page = shopify_create_smartpage(@smartpage.path)
         if new_shopify_page.save
