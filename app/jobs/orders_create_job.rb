@@ -30,14 +30,85 @@ class OrdersCreateJob < ActiveJob::Base
       order_query = client.parse <<-'GRAPHQL'
         query($id: ID!) {
           order(id: $id) {
-            email
+            customer {
+              id
+              displayName
+              phone
+              tags
+              acceptsMarketing
+              totalSpent
+              lifetimeDuration
+              locale
+              ordersCount
+            }
+            customerJourneySummary {
+              customerOrderIndex
+              momentsCount
+              daysToConversion
+              firstVisit {
+                id
+                landingPage
+                referrerUrl
+                source
+              }
+              lastVisit {
+                id
+                landingPage
+                referrerUrl
+                source
+              }
+            }
           }
         }
       GRAPHQL
 
       # get result from client.query() passing in all variables as a hash in key 'variables'
       result = client.query(order_query, variables: { id: graphql_order_id })
-      puts result.data.order.email
+      
+      # get nested data out of results
+      customer_journey = result.data.order.customer_journey_summary
+      customer = result.data.order.customer
+      moments_count = customer_journey.moments_count.to_i
+      orders_count = customer.orders_count.to_i
+      first_visit = customer_journey.first_visit
+      last_visit = customer_journey.last_visit
+      
+      # now that we have count of moments/orders can get total list for that order's customer and journey with second query
+      order_query = client.parse <<-'GRAPHQL'
+        query($id: ID!, $total_orders: Int, $total_moments: Int) {
+          order(id: $id) {
+            customer {
+              orders(first: $total_orders){
+                edges {
+                  node {
+                    id
+                    totalPriceSet{
+                      presentmentMoney{
+                        amount
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            customerJourneySummary {
+              moments(first: $total_moments) {
+                edges {
+                  node {
+                    occurredAt
+                  }
+                }
+              }
+            }
+          }
+        }
+      GRAPHQL
+
+      result = client.query(order_query, variables: { id: graphql_order_id, total_orders: orders_count, total_moments: moments_count })
+      # ex: get total price of first order, or any other attribute. could use a loop/map.
+      puts result.data.order.customer.orders.edges.first.node.total_price_set.presentment_money.amount
+      # ex: access moments array like this.
+      puts result.data.order.customer_journey_summary.moments.edges.count
     end
   end
 end
