@@ -1,0 +1,13 @@
+<div class='thrive-customer-check'>
+  {% if customer %}
+    <script>
+      console.log('CUSTOMER LOGGED IN');
+      console.log('customer id:')
+      console.log({{customer.id}});
+      console.log('customer total spent:')
+      console.log({{customer.total_spent}});
+      console.log('current cart total:')
+      console.log({{cart.total_price}})
+    </script>
+  {% endif %}
+</div>

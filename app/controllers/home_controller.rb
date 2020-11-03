@@ -2,33 +2,46 @@
 
 class HomeController < AuthenticatedController
   def index
-    @products = ShopifyAPI::Product.find(:all, params: { limit: 10 })
-    @webhooks = ShopifyAPI::Webhook.find(:all)
-    @smartpage = Smartpage.new
+    find_thrive_data_snippet
+    create_thrive_data_snippet
+    include_thrive_data_snippet
+  end
 
-    asset = ShopifyAPI::Asset.find("layout/theme.liquid")
-    html = asset.value
-    # if we have not done this already
-    # then add the snippet to check if customer is logged in.
-    # when we update or uninstall we can search for our unique div class.
-    # we can call out to a static script on a cdn from here.
-    if html.index('thrive-customer-check').nil?
-      head_location = html.index('<head>') + '<head>'.length
-      snippet = 
-        "<div class='thrive-customer-check'>
-          {% if customer %}
-            <script>
-              console.log('hello I am logged in');
-              console.log({{customer.id}});
-            </script>
-          {% endif %}
-        </div>"
-      html.insert(head_location, snippet)
-      asset.value = html
-      asset.save
+  def find_thrive_data_snippet
+    # find previous version of our snippet and destroy it.
+    # if not found create new, catch error to create new.
+    begin
+      @thrive_liquid = ShopifyAPI::Asset.find("snippets/thrive.liquid")
+      @thrive_liquid.destroy
+    rescue ActiveResource::ResourceNotFound => e
+      Rails.logger("Could not find Trhive snippet. Creating new.")
+    rescue Exception => e
+      Rails.logger("Could not complete search for Thrive snippet. #{e.message}")
     end
   end
 
-  def smartpages
+  def create_thrive_data_snippet
+    @thrive_liquid = ShopifyAPI::Asset.new
+    rendered_snippet = render_to_string("shopify_snippets/thrive.liquid", layout: false)
+    @thrive_liquid.value = rendered_snippet
+    @thrive_liquid.key = "snippets/thrive.liquid"
+    @thrive_liquid.save
+  end
+
+  def include_thrive_data_snippet
+    # get main theme liquid file and its html
+    theme_liquid = ShopifyAPI::Asset.find("layout/theme.liquid")
+    theme_liquid_html = theme_liquid.value
+    # find head tag in html
+    # append with render statement for our snippet if it is not already there. 
+    # content of snippit can change because it is loaded into templates dynamically
+    # and we replace the content of the snippet file with snippets/thrive.liquid on visit to our app's root in shopify admin.
+    render_snippet_html = "{% render 'thrive' %}"
+    if theme_liquid_html.index(render_snippet_html).nil?
+      head_location = theme_liquid_html.index('<head>') + '<head>'.length
+      theme_liquid_html.insert(head_location, render_snippet_html)
+      theme_liquid.value = theme_liquid_html
+      theme_liquid.save
+    end
   end
 end
