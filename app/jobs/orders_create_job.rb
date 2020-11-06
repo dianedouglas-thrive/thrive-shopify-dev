@@ -72,43 +72,71 @@ class OrdersCreateJob < ActiveJob::Base
       orders_count = customer.orders_count.to_i
       first_visit = customer_journey.first_visit
       last_visit = customer_journey.last_visit
-      
-      # now that we have count of moments/orders can get total list for that order's customer and journey with second query
-      order_query = client.parse <<-'GRAPHQL'
-        query($id: ID!, $total_orders: Int, $total_moments: Int) {
-          order(id: $id) {
-            customer {
-              orders(first: $total_orders){
-                edges {
-                  node {
-                    id
-                    totalPriceSet{
-                      presentmentMoney{
-                        amount
+      customer_exists = orders_count > 0
+      # now that we have count of moments/orders we know if they are an existing customer or not.
+      if customer_exists
+        puts "---- existing customer. get order history and journey. ----"
+        # pre-existing customer with order history
+        order_query = client.parse <<-'GRAPHQL'
+          query($id: ID!, $total_orders: Int, $total_moments: Int) {
+            order(id: $id) {
+              customer {
+                orders(first: $total_orders){
+                  edges {
+                    node {
+                      id
+                      totalPriceSet{
+                        presentmentMoney{
+                          amount
+                        }
                       }
                     }
                   }
                 }
               }
-            }
-            customerJourneySummary {
-              moments(first: $total_moments) {
-                edges {
-                  node {
-                    occurredAt
+              customerJourneySummary {
+                moments(first: $total_moments) {
+                  edges {
+                    node {
+                      occurredAt
+                    }
                   }
                 }
               }
             }
           }
-        }
-      GRAPHQL
+        GRAPHQL
 
-      result = client.query(order_query, variables: { id: graphql_order_id, total_orders: orders_count, total_moments: moments_count })
-      # ex: get total price of first order, or any other attribute. could use a loop/map.
-      puts result.data.order.customer.orders.edges.first.node.total_price_set.presentment_money.amount
-      # ex: access moments array like this.
-      puts result.data.order.customer_journey_summary.moments.edges.count
+        result = client.query(order_query, variables: { id: graphql_order_id, total_orders: orders_count, total_moments: moments_count })
+      else  
+        puts "---- new customer. get journey only. ----"
+
+        order_query = client.parse <<-'GRAPHQL'
+          query($id: ID!, $total_moments: Int) {
+            order(id: $id) {
+              customerJourneySummary {
+                moments(first: $total_moments) {
+                  edges {
+                    node {
+                      occurredAt
+                    }
+                  }
+                }
+              }
+            }
+          }
+        GRAPHQL
+
+        result = client.query(order_query, variables: { id: graphql_order_id, total_moments: moments_count })
+      end
+
+      if customer_exists
+        # ex: get total price of first order, or any other attribute. could use a loop/map.
+        puts result.data.order.customer.orders.edges.first.node.total_price_set.presentment_money.amount
+      else
+        # ex: access moments array like this.
+        puts result.data.order.customer_journey_summary.moments.edges.count
+      end
     end
   end
 end
