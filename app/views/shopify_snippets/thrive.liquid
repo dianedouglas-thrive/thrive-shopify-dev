@@ -1,169 +1,32 @@
-<div class='thrive-customer-check'>
-  {% if customer %}
-    <script>
-      console.log('*****Customer*****')
-      console.log('CUSTOMER IS LOGGED IN');
-      console.log('id:')
-      console.log('{{customer.id}}');
-      console.log('accepts_marketing:')
-      console.log('{{customer.accepts_marketing}}');
-      console.log('addresses: exists but needs loop')
-      console.log('addresses_count:')
-      console.log('{{customer.addresses_count}}');
-      console.log('default_address: exists but is its own object')
-      console.log('email:')
-      console.log('{{customer.email}}');
-      console.log('first_name:')
-      console.log('{{customer.first_name}}');
-      console.log('last_name:')
-      console.log('{{customer.last_name}}');
-      console.log('last_order: exists but is its own object')
-      console.log('name:')
-      console.log('{{customer.name}}');
-      console.log('orders: exists but needs loop')
-      console.log('orders_count:')
-      console.log('{{customer.orders_count}}');
-      console.log('phone:')
-      console.log('{{customer.phone}}');
-      console.log('tags:')
-      console.log('{{customer.tags}}');
-      console.log('tax_exempt:')
-      console.log('{{customer.tax_exempt}}');
-      console.log('total_spent:')
-      console.log('{{customer.total_spent}}');
-    </script>
-  {% endif %}
+<script src="https://integrate.thrive.today"></script>
 
+{% if customer %}
   <script>
-      console.log('*****Cart*****')
-      console.log('note:')
-      console.log({{cart.note}})
-      console.log('attributes:')
-      console.log({{cart.attributes}})
-      console.log('total_price:')
-      console.log({{cart.total_price}})
-      console.log('total_weight:')
-      console.log({{cart.total_weight}})
-      console.log('item_count:')
-      console.log({{cart.item_count}})
-      console.log('requires_shipping:')
-      console.log({{cart.requires_shipping}})
-      console.log('currency: exists but is its own object')
-      console.log('items_subtotal_price:')
-      console.log({{cart.items_subtotal_price}})
-    </script>
-
-    <script>
-      console.log('*****Cart Items*****')
-    </script>
-  {% for item in cart.items %}
-    <script>
-      console.log('id:')
-      console.log('{{ item.id }}')
-      console.log('properties:')
-      console.log('{{ item.properties }}')
-      console.log('quantity:')
-      console.log('{{ item.quantity }}')
-      console.log('variant_id:')
-      console.log('{{ item.variant_id }}')
-      console.log('key:')
-      console.log('{{ item.key }}')
-      console.log('title:')
-      console.log('{{ item.title }}')
-      console.log('final_price:')
-      console.log('{{ item.final_price }}')
-      console.log('final_line_price:')
-      console.log('{{ item.final_line_price }}')
-      console.log('sku:')
-      console.log('{{ item.sku }}')
-      console.log('grams:')
-      console.log('{{ item.grams }}')
-      console.log('vendor:')
-      console.log('{{ item.vendor }}')
-      console.log('taxable:')
-      console.log('{{ item.taxable }}')
-      console.log('product_id:')
-      console.log('{{ item.product_id }}')
-      console.log('gift_card:')
-      console.log('{{ item.gift_card }}')
-      console.log('url:')
-      console.log('{{ item.url }}')
-      console.log('image:')
-      console.log('{{ item.image }}')
-      console.log('requires_shipping:')
-      console.log('{{ item.requires_shipping }}')
-      console.log('product_title:')
-      console.log('{{ item.product.title }}')
-      console.log('product_description:')
-      console.log('{{ item.product.description }}')
-      console.log('product_type:')
-      console.log('{{ item.product.type }}')
-      console.log('variant_title:')
-      console.log('{{ item.variant.title }}')
-      console.log('variant_options:')
-      console.log('{{ item.variant.options }}')
-      console.log('options_with_values:')
-      console.log('{{ item.variant.options_with_values }}')
-      console.log('fullfillment: exists but it is its own object')
-      console.log('fulfillment_service:')
-      console.log('{{ item.fulfillment_service }}')
-      console.log('line_level_discount_allocations:')
-      console.log('{{ item.line_level_discount_allocations }}')
-      console.log('line_level_total_discount:')
-      console.log('{{ item.line_level_total_discount }}')
-      console.log('message:')
-      console.log('{{ item.message }}')
-      console.log('original_line_price:')
-      console.log('{{ item.original_line_price }}')
-      console.log('product: exists but it is its own object')
-      console.log('selling_plan_allocation:')
-      console.log('{{ item.selling_plan_allocation }}')
-      console.log('successfully_filled_quantity:')
-      console.log('{{ item.successfully_filled_quantity }}')
-      console.log('variant: exists but it is its own object')
-    </script>
-  {% endfor %}
-
-  <script>
-    console.log('cart_level_discount_applications:')
+    var customer_logged_in = true
   </script>
-  {% for discount_application in cart.cart_level_discount_applications %}
-    <script>
-      console.log('type:')
-      console.log('{{ discount_application.type }}')
-      console.log('title:')
-      console.log('{{ discount_application.title }}')
-      console.log('value:')
-      console.log('{{ discount_application.value }}')
-      console.log('value_type:')
-      console.log('{{ discount_application.value_type }}')
-      console.log('target_selection:')
-      console.log('{{ discount_application.target_selection }}')
-      console.log('target_type:')
-      console.log('{{ discount_application.target_type }}')
-      console.log('total_allocated_amount:')
-      console.log('{{ discount_application.total_allocated_amount }}')
-    </script>
-  {% endfor %}
+{% else %}
   <script>
-    console.log('discount_applications:')
+    var customer_logged_in = false
   </script>
-  {% for discount_application in cart.discount_applications %}
-    <script>
-      console.log('type:')
-      console.log('{{ discount_application.type }}')
-      console.log('title:')
-      console.log('{{ discount_application.title }}')
-      console.log('value:')
-      console.log('{{ discount_application.value }}')
-      console.log('value_type:')
-      console.log('{{ discount_application.value_type }}')
-      console.log('target_selection:')
-      console.log('{{ discount_application.target_selection }}')
-      console.log('target_type:')
-      console.log('{{ discount_application.target_type }}')
-      console.log('total_allocated_amount:')
-      console.log('{{ discount_application.total_allocated_amount }}')
-    </script>
-  {% endfor %}
-</div>
+{% endif %}
+
+<script>
+  console.log('*****Cart*****');
+  var total_price = {{cart.total_price}};
+  console.log('total_price:');
+  console.log(total_price);
+  var item_count = {{cart.item_count}};
+  console.log('item_count:');
+  console.log(item_count);
+
+  var gte_object = {
+    "gte_class_name" : "minird_shopify_cart",
+    "total_price" : total_price,
+    "item_count" : item_count,
+    "customer_logged_in" : customer_logged_in
+  };
+
+  console.log(gte_object);
+  thrive.gte( gte_object["gte_class_name"], gte_object );
+  thrive.gte_send();
+</script>
