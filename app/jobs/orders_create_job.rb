@@ -107,7 +107,7 @@ class OrdersCreateJob < ActiveJob::Base
           }
         GRAPHQL
 
-        result = client.query(order_query, variables: { id: graphql_order_id, total_orders: orders_count, total_moments: moments_count })
+        nested_result = client.query(order_query, variables: { id: graphql_order_id, total_orders: orders_count, total_moments: moments_count })
       else  
         puts "---- new customer. get journey only. ----"
 
@@ -127,15 +127,15 @@ class OrdersCreateJob < ActiveJob::Base
           }
         GRAPHQL
 
-        result = client.query(order_query, variables: { id: graphql_order_id, total_moments: moments_count })
+        nested_result = client.query(order_query, variables: { id: graphql_order_id, total_moments: moments_count })
       end
 
       if customer_exists
         # ex: get total price of first order, or any other attribute. could use a loop/map.
-        puts result.data.order.customer.orders.edges.first.node.total_price_set.presentment_money.amount
+        puts nested_result.data.order.customer.orders.edges.first.node.total_price_set.presentment_money.amount
       else
         # ex: access moments array like this.
-        puts result.data.order.customer_journey_summary.moments.edges.count
+        puts nested_result.data.order.customer_journey_summary.moments.edges.count
       end
     end
   end
