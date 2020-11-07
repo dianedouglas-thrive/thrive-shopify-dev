@@ -1,12 +1,32 @@
 <script src="https://integrate.thrive.today"></script>
 
 {% if customer %}
+  {% assign order_total = 0 %}
+  {% assign orders_count = 0 %}
+  {% for order in customer.orders %}
+    {% assign order_total = order_total | plus: order.total_price %}
+    {% assign orders_count = orders_count | plus: 1 %}
+  {% endfor %}
   <script>
-    var customer_logged_in = true
+    var customer_logged_in = true;
+    var order_total = {{order_total}};
+    var orders_count = {{orders_count}};
   </script>
+  {% if orders_count > 0 %}
+    <script>
+      var order_average = order_total / {{orders_count}};
+    </script>
+  {% else %}
+    <script>
+      var order_average = 0;
+    </script>
+  {% endif %}
 {% else %}
   <script>
-    var customer_logged_in = false
+    var customer_logged_in = false;
+    var order_total = 0;
+    var orders_count = 0;
+    var order_average = 0;
   </script>
 {% endif %}
 
@@ -23,7 +43,10 @@
     "gte_class_name" : "minird_shopify_cart",
     "total_price" : total_price,
     "item_count" : item_count,
-    "customer_logged_in" : customer_logged_in
+    "customer_logged_in" : customer_logged_in,
+    "order_total" : order_total,
+    "orders_count" : orders_count,
+    "order_average" : order_average
   };
 
   console.log(gte_object);

@@ -14,9 +14,9 @@ class HomeController < AuthenticatedController
       @thrive_liquid = ShopifyAPI::Asset.find("snippets/thrive.liquid")
       @thrive_liquid.destroy
     rescue ActiveResource::ResourceNotFound => e
-      Rails.logger("Could not find Trhive snippet. Creating new.")
+      Rails.logger.info("Could not find Trhive snippet. Creating new.")
     rescue Exception => e
-      Rails.logger("Could not complete search for Thrive snippet. #{e.message}")
+      Rails.logger.info("Could not complete search for Thrive snippet. #{e.message}")
     end
   end
 
