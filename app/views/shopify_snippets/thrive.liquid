@@ -1,5 +1,6 @@
 <script src="https://integrate.thrive.today"></script>
 
+<!-- If customer logged in -->
 {% if customer %}
   {% assign order_total = 0 %}
   {% assign orders_count = 0 %}
@@ -9,9 +10,11 @@
   {% endfor %}
   <script>
     var customer_logged_in = true;
+    var customer_id = {{customer.id}};
     var order_total = {{order_total}};
     var orders_count = {{orders_count}};
   </script>
+
   {% if orders_count > 0 %}
     <script>
       var order_average = order_total / {{orders_count}};
@@ -22,23 +25,20 @@
     </script>
   {% endif %}
 {% else %}
+<!-- If guest -->
   <script>
     var customer_logged_in = false;
+    var customer_id = false;
     var order_total = 0;
     var orders_count = 0;
     var order_average = 0;
   </script>
 {% endif %}
 
+<!-- Regardless of login or not get cart. -->
 <script>
-  console.log('*****Cart*****');
   var total_price = {{cart.total_price}};
-  console.log('total_price:');
-  console.log(total_price);
   var item_count = {{cart.item_count}};
-  console.log('item_count:');
-  console.log(item_count);
-
   var gte_object = {
     "gte_class_name" : "minird_shopify_cart",
     "total_price" : total_price,
@@ -46,9 +46,9 @@
     "customer_logged_in" : customer_logged_in,
     "order_total" : order_total,
     "orders_count" : orders_count,
-    "order_average" : order_average
+    "order_average" : order_average,
+    "customer_id" : customer_id
   };
-
   console.log(gte_object);
   thrive.gte( gte_object["gte_class_name"], gte_object );
   thrive.gte_send();

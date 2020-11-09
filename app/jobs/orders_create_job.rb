@@ -11,13 +11,8 @@ class OrdersCreateJob < ActiveJob::Base
     # could be done in a custom controller if you want
     # https://github.com/Shopify/shopify_app#webhooksmanager
     shop.with_shopify_session do
-
-      # get order id out of webhook parameter
-      order_id = webhook['id']
-
-      # format it for graphql order id argument
-      # takes a string
-      graphql_order_id = "gid://shopify/Order/#{order_id}"
+      # get graphql order id from webhook
+      graphql_order_id = webhook['admin_graphql_api_id']
 
       # grab the client. initialized inside engine.
       client = ShopifyAPI::GraphQL.client

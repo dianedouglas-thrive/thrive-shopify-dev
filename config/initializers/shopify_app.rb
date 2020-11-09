@@ -13,7 +13,7 @@ ShopifyApp.configure do |config|
   # ]
   # config.webhook_jobs_namespace = 'shopify/webhooks'
   config.webhooks = [
-    {topic: 'orders/create', address: 'https://677cf1d00eaa.ngrok.io/webhooks/orders_create', format: 'json'},
+    {topic: 'orders/create', address: 'https://e35c94f0c8d4.ngrok.io/webhooks/orders_create', format: 'json'},
   ]
 end
 
