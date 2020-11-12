@@ -35,6 +35,20 @@
   </script>
 {% endif %}
 
+<script type="text/javascript">
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', '/cart.js');
+  xhr.onload = function() {
+      if (xhr.status === 200) {
+        JSON.parse(xhr.response);
+      }
+      else {
+        console.log(xhr.status);
+      }
+  };
+  xhr.send();
+</script>
+
 <!-- Regardless of login or not get cart. -->
 <script>
   var total_price = {{cart.total_price}};

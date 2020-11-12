@@ -8,12 +8,14 @@ ShopifyApp.configure do |config|
   config.after_authenticate_job = false
   config.api_version = "2020-10"
   config.shop_session_repository = 'Shop'
-  # config.scripttags = [
-  #   {event:'onload', src: 'https://integrate.thrive.today'}
-  # ]
+  config.scripttags = [
+    {event:'onload', src: 'https://integrate.thrive.today'},
+    {event:'onload', src: 'https://78d5cf31eb4a.ngrok.io/script/test'}
+  ]
   # config.webhook_jobs_namespace = 'shopify/webhooks'
   config.webhooks = [
-    {topic: 'orders/create', address: 'https://e35c94f0c8d4.ngrok.io/webhooks/orders_create', format: 'json'},
+    {topic: 'carts/update', address: 'https://78d5cf31eb4a.ngrok.io/webhooks/carts_update', format: 'json'},
+    {topic: 'orders/create', address: 'https://78d5cf31eb4a.ngrok.io/webhooks/orders_create', format: 'json'},
   ]
 end
 
