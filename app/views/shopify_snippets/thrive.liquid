@@ -13,6 +13,7 @@
     var customer_id = {{customer.id}};
     var order_total = {{order_total}};
     var orders_count = {{orders_count}};
+    var customer_first_name = '{{customer.first_name}}';
   </script>
 
   {% if orders_count > 0 %}
@@ -32,6 +33,7 @@
     var order_total = 0;
     var orders_count = 0;
     var order_average = 0;
+    var customer_first_name = "";
   </script>
 {% endif %}
 
@@ -67,3 +69,168 @@
   thrive.gte( gte_object["gte_class_name"], gte_object );
   thrive.gte_send();
 </script>
+<!-- Product Team Printing -->
+<!-- Cart -->
+<script type="text/javascript">
+  console.log("**** Info for product team ****")
+  var total_price = {{cart.total_price}};
+  var item_count = {{cart.item_count}};
+  var items_subtotal_price = {{cart.items_subtotal_price}};
+  var original_total_price = {{cart.original_total_price}};
+  var cart_info = {
+    "total_price": total_price,
+    "item_count": item_count,
+    "items_subtotal_price": items_subtotal_price,
+    "original_total_price": original_total_price
+  };
+  console.log("- Cart info: ");
+  console.log(cart_info);
+</script>
+<!-- Cart Level Discounts -->
+<script type="text/javascript">
+  console.log("- Cart Level Discount info: ");
+  var discounts = [];
+</script>
+{% for discount in cart.cart_level_discount_applications %}
+  <script type="text/javascript">
+    var title = "{{discount.title}}";
+    var value = "{{discount.value}}";
+    var total_allocated_amount = "{{discount.total_allocated_amount}}";
+    discounts.push(
+      {
+        "title": title,
+        "value": value,
+        "total_allocated_amount": total_allocated_amount,
+      }
+    );
+  </script>
+{% endfor %}
+<script type="text/javascript">
+  console.log(discounts);
+</script>
+<!-- Cart Items -->
+<script type="text/javascript">
+  console.log("- Cart Items info: ");
+  var items = [];
+</script>
+{% for item in cart.items %}
+  <script type="text/javascript">
+    var quantity = "{{item.quantity}}";
+    var title = "{{item.title}}";
+    console.log("Current item is " + title);
+    var price = "{{item.price}}";
+    var line_price = "{{item.line_price}}";
+    var final_price = "{{item.final_price}}";
+    var original_line_price = "{{item.original_line_price}}";
+    var original_price = "{{item.original_price}}";
+    var product_id = "{{item.product_id}}";
+    var product_title = "{{item.product_title}}";
+    var line_level_total_discount = "{{item.line_level_total_discount}}";
+    var item_info = {
+      "quantity": quantity,
+      "title": title,
+      "price": price,
+      "line_price": line_price,
+      "final_price": final_price,
+      "original_line_price": original_line_price,
+      "original_price": original_price,
+      "product_id": product_id,
+      "product_title": product_title,
+      "line_level_total_discount": line_level_total_discount
+    };
+  </script>
+
+  <!-- get discount_allocations from each item. -->
+  <script>
+    var item_discount_allocations = [];
+    var total_item_discount_allocations = "{{item.discount_allocations | size}}";
+    console.log("Total number of discount_allocations in this item: " + total_item_discount_allocations);
+  </script>
+  {% for allocation in item.discount_allocations %}
+    <script>
+      var amount = "{{allocation.amount}}";
+      var application_target_selection = "{{allocation.discount_application.target_selection}}";
+      var application_target_type = "{{allocation.discount_application.target_type}}";
+      var application_title = "{{allocation.discount_application.title}}";
+      var application_total_allocated_amount = "{{allocation.discount_application.total_allocated_amount}}";
+      var application_type = "{{allocation.discount_application.type}}";
+      var application_value = "{{allocation.discount_application.value}}";
+      var application_value_type = "{{allocation.discount_application.value_type}}";
+      item_discount_allocations.push(
+        {
+          "amount": amount,
+          "application_target_selection": application_target_selection,
+          "application_target_type": application_target_type,
+          "application_title": application_title,
+          "application_total_allocated_amount": application_total_allocated_amount,
+          "application_type": application_type,
+          "application_value": application_value,
+          "application_value_type": application_value_type
+        }
+      );
+
+      item_info["item_discount_allocations"] = item_discount_allocations;
+    </script>
+  {% endfor %}
+
+  <!-- get line_level_discount_allocations from each item. -->
+  <script>
+    var item_line_level_discount_allocations = [];
+    var total_line_level_discount_allocations = "{{item.line_level_discount_allocations | size}}";
+    console.log("Total number of line_level_discount_applications in this item: " + total_line_level_discount_allocations);
+  </script>
+  {% for allocation in item.line_level_discount_allocations %}
+    <script>
+      var amount = "{{allocation.amount}}";
+      var application_target_selection = "{{allocation.discount_application.target_selection}}";
+      var application_target_type = "{{allocation.discount_application.target_type}}";
+      var application_title = "{{allocation.discount_application.title}}";
+      var application_total_allocated_amount = "{{allocation.discount_application.total_allocated_amount}}";
+      var application_type = "{{allocation.discount_application.type}}";
+      var application_value = "{{allocation.discount_application.value}}";
+      var application_value_type = "{{allocation.discount_application.value_type}}";
+      item_line_level_discount_allocations.push(
+        {
+          "amount": amount,
+          "application_target_selection": application_target_selection,
+          "application_target_type": application_target_type,
+          "application_title": application_title,
+          "application_total_allocated_amount": application_total_allocated_amount,
+          "application_type": application_type,
+          "application_value": application_value,
+          "application_value_type": application_value_type
+        }
+      );
+
+      item_info["item_line_level_discount_allocations"] = item_line_level_discount_allocations;
+    </script>
+  {% endfor %}
+
+  <script type="text/javascript">
+    items.push(item_info);
+  </script>
+{% endfor %}
+<script type="text/javascript">
+  console.log(items);
+</script>
+
+<!-- Print liquid customer info -->
+<script type="text/javascript">
+  console.log("- Customer Liquid Info: ");
+  var customer_info = {
+    "customer_logged_in" : customer_logged_in,
+    "total_spent" : order_total,
+    "orders_count" : orders_count,
+    "order_average" : order_average,
+    "customer_id" : customer_id,
+    "customer_first_name": customer_first_name
+  };
+  console.log(customer_info);
+  console.log("current url: ");
+  var wlh = window.location.href;
+  console.log(wlh);
+</script>
+
+{% if search %}
+
+{% endif %}
