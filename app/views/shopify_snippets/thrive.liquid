@@ -1,236 +1,158 @@
-<script src="https://integrate.thrive.today"></script>
+<!-- Render UIE tag -->
+<script src="//integrate.thrive.today" async></script>
 
-<!-- If customer logged in -->
-{% if customer %}
-  {% assign order_total = 0 %}
-  {% assign orders_count = 0 %}
-  {% for order in customer.orders %}
-    {% assign order_total = order_total | plus: order.total_price %}
-    {% assign orders_count = orders_count | plus: 1 %}
-  {% endfor %}
+<!-- If search performed, send terms -->
+{% if search.performed %}
   <script>
-    var customer_logged_in = true;
-    var customer_id = {{customer.id}};
-    var order_total = {{order_total}};
-    var orders_count = {{orders_count}};
-    var customer_first_name = '{{customer.first_name}}';
-  </script>
-
-  {% if orders_count > 0 %}
-    <script>
-      var order_average = order_total / {{orders_count}};
-    </script>
-  {% else %}
-    <script>
-      var order_average = 0;
-    </script>
-  {% endif %}
-{% else %}
-<!-- If guest -->
-  <script>
-    var customer_logged_in = false;
-    var customer_id = false;
-    var order_total = 0;
-    var orders_count = 0;
-    var order_average = 0;
-    var customer_first_name = "";
+    var search_terms = "{{search.terms}}";
+    var platform_query_start = platform_query_end = (new Date).getTime();
+    var search_gte_object = {
+      "gte_class_name" : "minird_shopify_liquid_search",
+      "search_terms" : search_terms,
+      "navigation_start" : window.performance.timing.navigationStart,
+      "uie_run" : thrive.performance.uieRun,
+      "platform_query_start" : platform_query_start,
+      "platform_query_end" : platform_query_end
+    };
+    console.log(search_gte_object);
+    thrive.gte(search_gte_object["gte_class_name"], search_gte_object);
+    thrive.gte_send();
   </script>
 {% endif %}
 
+<!-- If customer logged in, get customer GTE data including last order. -->
+{% if customer %}
+
+  {% assign total_spent = 0 %}
+  {% assign orders_count = 0 %}
+  {% for order in customer.orders %}
+    {% assign total_spent = total_spent | plus: order.total_price %}
+    {% assign orders_count = orders_count | plus: 1 %}
+  {% endfor %}
+  <script>
+    var logged_in = true;
+    var total_spent = {{total_spent}};
+    var orders_count = {{orders_count}};
+    // Get last order and send if customer logged in
+    if (orders_count > 0) {
+      var created_at = "{{customer.orders.first.created_at}}";
+      var subtotal_price = "{{customer.orders.first.subtotal_price}}";
+      var total_discounts = "{{customer.orders.first.total_discounts}}";
+    } else {
+      var created_at = null;
+      var subtotal_price = null;
+      var total_discounts = null;
+    }
+    var platform_query_start = platform_query_end = (new Date).getTime();
+    var customer_last_order_gte_object = {
+      "gte_class_name" : "minird_shopify_liquid_customer_last_order",
+      "created_at" : created_at,
+      "subtotal_price" : subtotal_price,
+      "total_discounts" : total_discounts,
+      "navigation_start" : window.performance.timing.navigationStart,
+      "uie_run" : thrive.performance.uieRun,
+      "platform_query_start" : platform_query_start,
+      "platform_query_end" : platform_query_end
+    };
+    console.log(customer_last_order_gte_object);
+    thrive.gte(customer_last_order_gte_object["gte_class_name"], customer_last_order_gte_object);
+    thrive.gte_send();
+  </script>
+{% else %}
+
+<!-- If guest -->
+  <script>
+    var logged_in = false;
+    var total_spent = null;
+    var orders_count = null;
+  </script>
+
+{% endif %}
+
+<!-- Construct customer gte object whether logged in or not. -->
 <script type="text/javascript">
+  var platform_query_start = platform_query_end = (new Date).getTime();
+  var customer_gte_object = {
+    "gte_class_name" : "minird_shopify_liquid_customer",
+    "logged_in" : logged_in,
+    "total_spent" : total_spent,
+    "orders_count" : orders_count,
+    "navigation_start" : window.performance.timing.navigationStart,
+    "uie_run" : thrive.performance.uieRun,
+    "platform_query_start" : platform_query_start,
+    "platform_query_end" : platform_query_end
+  };
+  console.log(customer_gte_object);
+  thrive.gte(customer_gte_object["gte_class_name"], customer_gte_object);
+  thrive.gte_send();
+
+</script>
+
+
+<!-- Liquid cart data -->
+<script>
+  var total_price = "{{cart.total_price}}";
+  var item_count = "{{cart.item_count}}";
+  var original_total_price = "{{cart.original_total_price}}";
+  var total_discount = "{{cart.total_discount}}";
+  var platform_query_start = platform_query_end = (new Date).getTime();
+  var liquid_cart_gte_object = {
+    "gte_class_name" : "minird_shopify_liquid_cart",
+    "total_price" : total_price,
+    "item_count" : item_count,
+    "original_total_price" : original_total_price,
+    "total_discount" : total_discount,
+    "navigation_start" : window.performance.timing.navigationStart,
+    "uie_run" : thrive.performance.uieRun,
+    "platform_query_start" : platform_query_start,
+    "platform_query_end" : platform_query_end
+  };
+  console.log(liquid_cart_gte_object);
+  thrive.gte(liquid_cart_gte_object["gte_class_name"], liquid_cart_gte_object);
+  thrive.gte_send();
+</script>
+
+
+<!-- Ajax cart data -->
+<script type="text/javascript">
+  var platform_query_start = (new Date).getTime();
   var xhr = new XMLHttpRequest();
   xhr.open('GET', '/cart.js');
   xhr.onload = function() {
       if (xhr.status === 200) {
-        JSON.parse(xhr.response);
+        response = JSON.parse(xhr.response);
+        var platform_query_end = (new Date).getTime();
+        var ajax_cart_gte_object = {
+          "gte_class_name" : "minird_shopify_ajax_cart",
+          "total_price" : response.total_price,
+          "item_count" : response.item_count,
+          "original_total_price" : response.original_total_price,
+          "total_discount" : response.total_discount,
+          "navigation_start" : window.performance.timing.navigationStart,
+          "uie_run" : thrive.performance.uieRun,
+          "platform_query_start" : platform_query_start,
+          "platform_query_end" : platform_query_end
+        };
+        console.log(ajax_cart_gte_object);
+        thrive.gte( ajax_cart_gte_object["gte_class_name"], ajax_cart_gte_object );
+        thrive.gte_send();
       }
       else {
-        console.log(xhr.status);
+        var platform_query_end = (new Date).getTime();
+        var ajax_cart_gte_object = {
+          "gte_class_name" : "minird_shopify_ajax_cart",
+          "error" : true,
+          "error_message" : xhr.status,
+          "navigation_start" : window.performance.timing.navigationStart,
+          "uie_run" : thrive.performance.uieRun,
+          "platform_query_start" : platform_query_start,
+          "platform_query_end" : platform_query_end
+        };
+        console.log(ajax_cart_gte_object);
+        thrive.gte( ajax_cart_gte_object["gte_class_name"], ajax_cart_gte_object );
+        thrive.gte_send();
       }
   };
   xhr.send();
 </script>
 
-<!-- Regardless of login or not get cart. -->
-<script>
-  var total_price = {{cart.total_price}};
-  var item_count = {{cart.item_count}};
-  var gte_object = {
-    "gte_class_name" : "minird_shopify_cart",
-    "total_price" : total_price,
-    "item_count" : item_count,
-    "customer_logged_in" : customer_logged_in,
-    "order_total" : order_total,
-    "orders_count" : orders_count,
-    "order_average" : order_average,
-    "customer_id" : customer_id
-  };
-  console.log(gte_object);
-  thrive.gte( gte_object["gte_class_name"], gte_object );
-  thrive.gte_send();
-</script>
-<!-- Product Team Printing -->
-<!-- Cart -->
-<script type="text/javascript">
-  console.log("**** Info for product team ****")
-  var total_price = {{cart.total_price}};
-  var item_count = {{cart.item_count}};
-  var items_subtotal_price = {{cart.items_subtotal_price}};
-  var original_total_price = {{cart.original_total_price}};
-  var cart_info = {
-    "total_price": total_price,
-    "item_count": item_count,
-    "items_subtotal_price": items_subtotal_price,
-    "original_total_price": original_total_price
-  };
-  console.log("- Cart info: ");
-  console.log(cart_info);
-</script>
-<!-- Cart Level Discounts -->
-<script type="text/javascript">
-  console.log("- Cart Level Discount info: ");
-  var discounts = [];
-</script>
-{% for discount in cart.cart_level_discount_applications %}
-  <script type="text/javascript">
-    var title = "{{discount.title}}";
-    var value = "{{discount.value}}";
-    var total_allocated_amount = "{{discount.total_allocated_amount}}";
-    discounts.push(
-      {
-        "title": title,
-        "value": value,
-        "total_allocated_amount": total_allocated_amount,
-      }
-    );
-  </script>
-{% endfor %}
-<script type="text/javascript">
-  console.log(discounts);
-</script>
-<!-- Cart Items -->
-<script type="text/javascript">
-  console.log("- Cart Items info: ");
-  var items = [];
-</script>
-{% for item in cart.items %}
-  <script type="text/javascript">
-    var quantity = "{{item.quantity}}";
-    var title = "{{item.title}}";
-    console.log("Current item is " + title);
-    var price = "{{item.price}}";
-    var line_price = "{{item.line_price}}";
-    var final_price = "{{item.final_price}}";
-    var original_line_price = "{{item.original_line_price}}";
-    var original_price = "{{item.original_price}}";
-    var product_id = "{{item.product_id}}";
-    var product_title = "{{item.product_title}}";
-    var line_level_total_discount = "{{item.line_level_total_discount}}";
-    var item_info = {
-      "quantity": quantity,
-      "title": title,
-      "price": price,
-      "line_price": line_price,
-      "final_price": final_price,
-      "original_line_price": original_line_price,
-      "original_price": original_price,
-      "product_id": product_id,
-      "product_title": product_title,
-      "line_level_total_discount": line_level_total_discount
-    };
-  </script>
-
-  <!-- get discount_allocations from each item. -->
-  <script>
-    var item_discount_allocations = [];
-    var total_item_discount_allocations = "{{item.discount_allocations | size}}";
-    console.log("Total number of discount_allocations in this item: " + total_item_discount_allocations);
-  </script>
-  {% for allocation in item.discount_allocations %}
-    <script>
-      var amount = "{{allocation.amount}}";
-      var application_target_selection = "{{allocation.discount_application.target_selection}}";
-      var application_target_type = "{{allocation.discount_application.target_type}}";
-      var application_title = "{{allocation.discount_application.title}}";
-      var application_total_allocated_amount = "{{allocation.discount_application.total_allocated_amount}}";
-      var application_type = "{{allocation.discount_application.type}}";
-      var application_value = "{{allocation.discount_application.value}}";
-      var application_value_type = "{{allocation.discount_application.value_type}}";
-      item_discount_allocations.push(
-        {
-          "amount": amount,
-          "application_target_selection": application_target_selection,
-          "application_target_type": application_target_type,
-          "application_title": application_title,
-          "application_total_allocated_amount": application_total_allocated_amount,
-          "application_type": application_type,
-          "application_value": application_value,
-          "application_value_type": application_value_type
-        }
-      );
-
-      item_info["item_discount_allocations"] = item_discount_allocations;
-    </script>
-  {% endfor %}
-
-  <!-- get line_level_discount_allocations from each item. -->
-  <script>
-    var item_line_level_discount_allocations = [];
-    var total_line_level_discount_allocations = "{{item.line_level_discount_allocations | size}}";
-    console.log("Total number of line_level_discount_applications in this item: " + total_line_level_discount_allocations);
-  </script>
-  {% for allocation in item.line_level_discount_allocations %}
-    <script>
-      var amount = "{{allocation.amount}}";
-      var application_target_selection = "{{allocation.discount_application.target_selection}}";
-      var application_target_type = "{{allocation.discount_application.target_type}}";
-      var application_title = "{{allocation.discount_application.title}}";
-      var application_total_allocated_amount = "{{allocation.discount_application.total_allocated_amount}}";
-      var application_type = "{{allocation.discount_application.type}}";
-      var application_value = "{{allocation.discount_application.value}}";
-      var application_value_type = "{{allocation.discount_application.value_type}}";
-      item_line_level_discount_allocations.push(
-        {
-          "amount": amount,
-          "application_target_selection": application_target_selection,
-          "application_target_type": application_target_type,
-          "application_title": application_title,
-          "application_total_allocated_amount": application_total_allocated_amount,
-          "application_type": application_type,
-          "application_value": application_value,
-          "application_value_type": application_value_type
-        }
-      );
-
-      item_info["item_line_level_discount_allocations"] = item_line_level_discount_allocations;
-    </script>
-  {% endfor %}
-
-  <script type="text/javascript">
-    items.push(item_info);
-  </script>
-{% endfor %}
-<script type="text/javascript">
-  console.log(items);
-</script>
-
-<!-- Print liquid customer info -->
-<script type="text/javascript">
-  console.log("- Customer Liquid Info: ");
-  var customer_info = {
-    "customer_logged_in" : customer_logged_in,
-    "total_spent" : order_total,
-    "orders_count" : orders_count,
-    "order_average" : order_average,
-    "customer_id" : customer_id,
-    "customer_first_name": customer_first_name
-  };
-  console.log(customer_info);
-  console.log("current url: ");
-  var wlh = window.location.href;
-  console.log(wlh);
-</script>
-
-{% if search %}
-
-{% endif %}
