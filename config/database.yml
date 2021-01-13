@@ -20,7 +20,8 @@ default: &default
   variables: { collation_connection: utf8_unicode_ci }
   host: host.docker.internal
   port: 3306
-  password: 
+  username: root
+  password: <%= ENV['TMS_DB_PASSWORD'] %>
   pool: 5
   variables:
     sql_mode: TRADITIONAL
@@ -33,7 +34,6 @@ development:
   # To create additional roles in postgres see `$ createuser --help`.
   # When left blank, postgres will use the default role. This is
   # the same name as the operating system user that initialized the database.
-  username: root
 
   # The password associated with the postgres role (username).
   #password:
