@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.5.8'
+ruby '2.7.1'
 
 gem 'shopify_app'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 6.0.2', '>= 6.0.2.2'
+gem 'rails', '~> 6.0.2', '>= 6.0.2.2', '< 6.1'
 # Using mysql
 gem 'mysql2'
 # Use Puma as the app server

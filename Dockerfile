@@ -1,4 +1,4 @@
-FROM ruby:2.5
+FROM ruby:2.7.1-slim
 
 RUN mkdir /app \
     && apt-get update \
@@ -16,9 +16,11 @@ RUN mkdir /app \
 COPY . /app
 WORKDIR /app
 
-# Install gems, yarn install
+# Install gems, yarn install, assets:precompile
 RUN bundle install --without test doc \
 	&& yarn install --check-files
+
+RUN rails assets:precompile
 
 # Set ENV variables with api creds
 ENV SHOPIFY_API_KEY b457aa4446d97a9f394f4ec99cdb7981
