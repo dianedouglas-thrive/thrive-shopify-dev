@@ -22,10 +22,6 @@ RUN bundle install --without test doc \
 
 RUN rails assets:precompile
 
-# Set ENV variables with api creds
-ENV SHOPIFY_API_KEY b457aa4446d97a9f394f4ec99cdb7981
-ENV SHOPIFY_API_SECRET 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
-
 EXPOSE 3000
 
 # Start the application server
